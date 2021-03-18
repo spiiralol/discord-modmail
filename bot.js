@@ -2,6 +2,7 @@ const Discord = require("discord.js");
 const db = require("quick.db");
 const config = require("./config.json");
 const table = new db.table("Tickets");
+require('dotenv').config()
 
 // declare the client
 const client = new Discord.Client();
@@ -214,4 +215,4 @@ client.on("message", async message => {
   }
 })
 
-client.login("ODIwNjA4OTU1NDYxOTI2OTUz.YE3ppQ.0wPEJL_2aP2aqaNZTjIJ_fJOQRQ"); // Log the bot in
+client.login(process.env.TOKEN); // Log the bot in
