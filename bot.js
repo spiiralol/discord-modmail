@@ -9,6 +9,8 @@ const client = new Discord.Client();
 // do something when the bot is logged in
 client.on("ready", () => {
   console.log(`Successfully logged in as ${client.user.tag}.`)
+  console.log(`Guild ID: ${config.guild} | Log Channel: ${config.log}`)
+  client.channels.cache.get(config.log).send('Modmail Online')
 })
 
 client.on("message", async message => {
@@ -52,15 +54,14 @@ client.on("message", async message => {
 	    .setTitle("New ticket created")
 	    .addField("Ticket no.", actualticket, true)
 	    .addField("Channel", `<#${channel.id}>`, true)
-	  if(config.logs){
-	    client.channels.cache.get(config.log).send({embed: newTicket})
-	  }
+	  client.channels.cache.get(config.log).send(newTicket)
+
       const newChannel = new Discord.MessageEmbed()
         .setColor("BLUE").setAuthor(author.tag, author.avatarURL())
         .setDescription(`Ticket #${actualticket} created.\nUser: ${author}\nID: ${author.id}`)
         .setTimestamp()
       await client.channels.cache.get(channel.id).send({embed:newChannel});
-      message.author.send(`Hello ${author.username}, your ticket #${actualticket} has been created.`)
+      message.author.send(`Hello ${author.username}, your ticket has been created.`)
       active.channelID = channel.id;
       active.targetID = author.id;
     }
@@ -135,7 +136,7 @@ client.on("message", async message => {
       .setDescription(`⏸️ This thread has been **locked** and **suspended**. Do \`${config.prefix}continue\` to cancel.`)
       .setTimestamp()
       .setColor("YELLOW")
-      message.channel.send({embed: suspend});
+      message.channel.send(suspend);
       return client.users.cache.get(support.targetID).send("Your ticket has been paused. We'll send you a message when we're ready to continue.")
     };
     
@@ -147,7 +148,7 @@ client.on("message", async message => {
       var c = new Discord.MessageEmbed()
       .setDescription("▶️ This thread has been **unlocked**.")
       .setColor("BLUE").setTimestamp()
-      message.channel.send({embed: c});
+      message.channel.send(c);
       return client.users.cache.get(support.targetID).send("Hi! Your ticket isn't paused anymore. We're ready to continue!");
     }
     
@@ -162,25 +163,24 @@ client.on("message", async message => {
 		.setTitle("User blocked")
 		.addField("Channel", `<#${message.channel.id}>`, true)
 		.addField("Reason", reason, true)
-	  if(config.logs){
-	    client.channels.cache.get(config.log).send({embed: blocked})
-	  }
+	  client.channels.cache.get(config.log).send(blocked)
+
       let isBlock = await table.get(`isBlocked${support.targetID}`);
       if(isBlock === true) return message.channel.send("The user is already blocked.")
       await table.set(`isBlocked${support.targetID}`, true);
       var c = new Discord.MessageEmbed()
       .setDescription("⏸️ The user has been blocked from the modmail. You may now close the ticket or unblock them to continue.")
       .setColor("RED").setTimestamp()
-      message.channel.send({embed: c});
+      message.channel.send(c);
       return;
     }
     
     // complete
-    if(message.content.toLowerCase() === `${config.prefix}complete`){
+    if(message.content.toLowerCase() === `${config.prefix}close`){
         var embed = new Discord.MessageEmbed()
         .setDescription(`This ticket will be deleted in **10** seconds...\n:lock: This thread has been locked and closed.`)
         .setColor("RED").setTimestamp()
-        message.channel.send({embed: embed})
+        message.channel.send(embed)
         var timeout = 10000
         setTimeout(() => {end(support.targetID);}, timeout)
       }
@@ -188,7 +188,7 @@ client.on("message", async message => {
         table.delete(`support_${userID}`);
         let actualticket = await table.get("ticket");
         message.channel.delete()
-        return client.users.cache.get(support.targetID).send(`Your ticket #${actualticket} has been closed! If you wish to open a new ticket, feel free to message me.`)
+        return client.users.cache.get(support.targetID).send(`Your ticket has been closed! If you wish to open a new ticket, feel free to message me.`)
       }
     };
 })
@@ -214,4 +214,4 @@ client.on("message", async message => {
   }
 })
 
-client.login(process.env.TOKEN); // Log the bot in
+client.login("ODIwNjA4OTU1NDYxOTI2OTUz.YE3ppQ.0wPEJL_2aP2aqaNZTjIJ_fJOQRQ"); // Log the bot in
